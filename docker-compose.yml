@@ -1,0 +1,45 @@
+version: '2'
+
+networks:
+    men-network:
+
+services:
+    men-mongo:
+        image: mongo:latest
+        container_name: men-mongo
+        expose:
+            - "27017"
+        ports:
+            - "127.0.5.100:27017:27017"
+        networks:
+            - men-network
+        volumes:
+            - ./db:/data/db:rw
+        env_file:
+            - .env
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: ${DB_USER}
+            MONGO_INITDB_ROOT_PASSWORD: ${DB_ROOT_PASS}
+
+    men-base:
+        user: root
+        build:
+            context: ./base
+            dockerfile: Dockerfile
+            args:
+                USER_ID: ${USER_ID}
+                GROUP_ID: ${GROUP_ID}
+        container_name: men-base
+        restart: always
+        expose:
+            - "3000"
+        ports:
+            - "127.0.5.100:3000:3000"
+        networks:
+            - men-network
+        volumes:
+            - ./project:/var/www:rw
+        env_file:
+            - .env
+        environment:
+            ENVIROMENT: ${ENVIROMENT}
